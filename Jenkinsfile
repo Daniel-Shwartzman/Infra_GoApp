@@ -37,7 +37,7 @@ pipeline {
             stage('Deploy Container') {
                 steps {
                     script {
-                        withCredentials([string(credentialsId: 'ec2-ssh-key', variable: 'SSH_KEY')]) {
+                        withCredentials([file(credentialsId: 'ec2-ssh-key', variable: 'SSH_KEY')]) {
                             dir('terraform') {
                                 // Read the instance public IP from Terraform output
                                 def instanceIP = bat(script: 'terraform output -raw instance_public_ip', returnStatus: true).trim()
