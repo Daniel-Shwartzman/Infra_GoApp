@@ -42,7 +42,7 @@ pipeline {
       stage('Deploy Container') {
           steps {
               script {
-                withCredentials([file(credentialsId: 'ec2-ssh-key', variable: 'SSH_KEY')]) {
+                  withCredentials([file(credentialsId: 'ec2-ssh-key', variable: 'SSH_KEY')]) {
                     dir('terraform') {
                         // Read the instance public IP from Terraform output
                         def instanceIPCommand = "${TERRAFORM_HOME}\\terraform output -raw instance_public_ip"
@@ -51,18 +51,18 @@ pipeline {
                             error("Command failed: ${instanceIPCommand}")
                         } else {
                             def instanceIP = bat(script: instanceIPCommand, returnStdout: true).trim()
-
+                  
                             // Generate a unique identifier (timestamp) for the container name
                             def containerName = "GoApp"
-
+                  
                             // Stop and remove any existing container with the same name
                             bat "ssh -o StrictHostKeyChecking=no -i $SSH_KEY ec2-user@${instanceIP} 'docker stop ${containerName} || true && docker rm ${containerName} || true'"
-
+                  
                             // Pull the latest Docker image and run the container
                             bat "ssh -o StrictHostKeyChecking=no -i $SSH_KEY ec2-user@${instanceIP} 'docker pull dshwartzman5/go-jenkins-dockerhub-repo:latest && docker run -d -p 8081:8081 --name ${containerName} dshwartzman5/go-jenkins-dockerhub-repo:latest'"
                         }
                     }
-                }
+                  }
               }
           }
       }
