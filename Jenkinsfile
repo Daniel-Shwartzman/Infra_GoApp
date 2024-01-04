@@ -16,12 +16,12 @@ pipeline {
                     expression {
                         // Run this stage if the initialization directory doesn't exist
                         // OR if there are changes in the Terraform configuration
-                        !fileExists('Infra_GoApp/terraform/.terraform') || hasTerraformChanges('Infra_GoApp/terraform')
+                        !fileExists('terraform/.terraform') || hasTerraformChanges('terraform')
                     }
                 }
                 steps {
                     script {
-                        dir('Infra_GoApp/terraform') {
+                        dir('terraform') {
                             // Configure Terraform
                             echo "Initializing Terraform"
                             bat "${TERRAFORM_HOME}\\terraform init"
@@ -38,7 +38,7 @@ pipeline {
                 steps {
                     script {
                         withCredentials([string(credentialsId: 'ec2-ssh-key', variable: 'SSH_KEY')]) {
-                            dir('Infra_GoApp/terraform') {
+                            dir('terraform') {
                                 // Read the instance public IP from Terraform output
                                 def instanceIP = bat(script: 'terraform output -raw instance_public_ip', returnStatus: true).trim()
 
