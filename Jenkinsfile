@@ -45,7 +45,7 @@ pipeline {
                         withCredentials([file(credentialsId: 'ec2-ssh-key', variable: 'SSH_KEY')]) {
                             dir('terraform') {
                                 // Read the instance public IP from Terraform output
-                                def instanceIP = bat(script: 'terraform output -raw instance_public_ip', returnStatus: true).trim()
+                                def instanceIP = bat(script: "${TERRAFORM_HOME}\\terraform output -raw instance_public_ip", returnStatus: true).trim()
 
                                 // Generate a unique identifier (timestamp) for the container name
                                 def containerName = "GoApp"
