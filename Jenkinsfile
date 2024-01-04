@@ -54,9 +54,9 @@ pipeline {
     
                             // Stop and remove existing container
                             bat """
-                                ssh -o StrictHostKeyChecking=no -i $SSH_KEY ec2-user@${instanceIP} \
+                                ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ec2-user@${instanceIP} \
                                 'docker stop ${containerName} || true' && \
-                                ssh -o StrictHostKeyChecking=no -i $SSH_KEY ec2-user@${instanceIP} \
+                                ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ec2-user@${instanceIP} \
                                 'docker rm ${containerName} || true'
                             """
     
