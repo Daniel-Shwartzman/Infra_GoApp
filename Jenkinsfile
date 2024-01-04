@@ -44,7 +44,7 @@ pipeline {
             script {
                 withCredentials([file(credentialsId: 'ec2-ssh-key', variable: 'SSH_KEY')]) {
                     dir('terraform'){
-                        def instanceIPCommand = "${TERRAFORM_HOME}\\terraform output -raw instance_public_ip"
+                        instanceIPCommand = "${TERRAFORM_HOME}\\terraform output -raw instance_public_ip"
                     }
                     
                     def instanceIPExitStatus = bat(script: instanceIPCommand, returnStatus: true)
