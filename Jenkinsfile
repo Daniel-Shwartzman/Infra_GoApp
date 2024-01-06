@@ -22,7 +22,7 @@ pipeline {
                 dir('terraform') {
                     // Refresh Terraform state
                     echo "Refreshing Terraform state"
-                    bat "${TERRAFORM_HOME}\\terraform apply -refresh-only"
+                    bat "${TERRAFORM_HOME}\\terraform apply -refresh-only -auto-approve"
 
                     // Initialize Terraform
                     echo "Initializing Terraform"
