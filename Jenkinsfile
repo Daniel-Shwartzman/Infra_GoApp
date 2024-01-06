@@ -17,31 +17,25 @@ pipeline {
 
   stages{
     stage('Terraform Apply (Conditional)') {
-        when {
-            expression {
-            // Run this stage if the initialization directory doesn't exist
-            // OR if there are changes in the Terraform configuration
-            !fileExists('terraform/.terraform') || hasTerraformChanges('terraform')
-            }
-        }
         steps {
             script {
-            dir('terraform') {
-                // Refresh Terraform state
-                echo "Refreshing Terraform state"
-                bat "${TERRAFORM_HOME}\\terraform apply -refresh-only"
+                dir('terraform') {
+                    // Refresh Terraform state
+                    echo "Refreshing Terraform state"
+                    bat "${TERRAFORM_HOME}\\terraform apply -refresh-only"
 
-                // Initialize Terraform
-                echo "Initializing Terraform"
-                bat "${TERRAFORM_HOME}\\terraform init"
+                    // Initialize Terraform
+                    echo "Initializing Terraform"
+                    bat "${TERRAFORM_HOME}\\terraform init"
 
-                // Apply Terraform changes
-                echo "Applying Terraform changes"
-                bat "${TERRAFORM_HOME}\\terraform apply -auto-approve"
+                    // Apply Terraform changes
+                    echo "Applying Terraform changes"
+                    bat "${TERRAFORM_HOME}\\terraform apply -auto-approve"
                 }
             }
         }
     }
+
 
     stage('Deploy Container') {
         steps {
