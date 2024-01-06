@@ -32,17 +32,16 @@ pipeline {
                     withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'SSH_KEY_FILE', passphraseVariable: '', usernameVariable: 'SSH_USERNAME')]) {
                         def terraformOutput = bat(script: "${TERRAFORM_HOME}\\terraform output -raw instance_public_ip", returnStatus: true).toString().trim()
 
-                        if (terraformOutput.isEmpty()) {
-                            error "Failed to retrieve the Terraform output for instance_public_ip."
+                        if (terraformOutput.isEmpty() || terraformOutput == "0") {
+                            error "Failed to retrieve a valid Terraform output for instance_public_ip."
                         }
 
                         echo "Terraform Output: ${terraformOutput}"
 
-
                         def containerName = "GoApp"
 
-                        // Stop and remove existing container
-                        bat "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_FILE} ${SSH_USERNAME}@${terraformOutput} 'docker stop ${containerName} 2>1 && docker rm ${containerName} 2>1'"
+                        // Check if the container exists and stop/remove if it does
+                        bat "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_FILE} ${SSH_USERNAME}@${terraformOutput} 'docker ps -q --filter name=${containerName} | xargs docker stop 2>1 && docker ps -q --filter name=${containerName} | xargs docker rm 2>1'"
 
                         // Pull the latest Docker image and run the container
                         bat "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_FILE} ${SSH_USERNAME}@${terraformOutput} 'docker pull dshwartzman5/go-jenkins-dockerhub-repo:latest && docker run -d -p 8081:8081 --name ${containerName} dshwartzman5/go-jenkins-dockerhub-repo:latest'"
@@ -50,12 +49,6 @@ pipeline {
                 }
             }
         }
-
-
-
-
-
-
 
         stage('Cleanup') {
             steps {
