@@ -11,12 +11,6 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
         stage('Terraform Apply (Conditional)') {
             steps {
                 script {
@@ -36,7 +30,13 @@ pipeline {
             steps {
                 script {
                     withCredentials([file(credentialsId: 'ec2-ssh-key', variable: 'SSH_KEY')]) {
-                        def terraformOutput = bat(script: "${TERRAFORM_HOME}\\terraform output -raw instance_public_ip", returnStatus: true).toString().trim()
+                        def terraformOutputFile = 'terraform_output.txt'
+                        
+                        // Run Terraform output command and store the result in a file
+                        bat script: "${TERRAFORM_HOME}\\terraform output -raw instance_public_ip > ${terraformOutputFile}", returnStatus: true
+
+                        // Read the output value from the file
+                        def terraformOutput = readFile(terraformOutputFile).trim()
 
                         if (terraformOutput.isEmpty()) {
                             error "Failed to retrieve the Terraform output for instance_public_ip."
