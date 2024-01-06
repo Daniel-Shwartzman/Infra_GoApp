@@ -27,14 +27,18 @@ pipeline {
         steps {
             script {
             dir('terraform') {
-                // Configure Terraform
+                // Refresh Terraform state
+                echo "Refreshing Terraform state"
+                bat "${TERRAFORM_HOME}\\terraform apply -refresh-only"
+
+                // Initialize Terraform
                 echo "Initializing Terraform"
                 bat "${TERRAFORM_HOME}\\terraform init"
 
                 // Apply Terraform changes
                 echo "Applying Terraform changes"
                 bat "${TERRAFORM_HOME}\\terraform apply -auto-approve"
-            }
+                }
             }
         }
     }
@@ -49,28 +53,29 @@ pipeline {
                     dir('terraform') {
                         def instanceIPExitStatus = bat(script: instanceIPCommand, returnStatus: true)
                         if (instanceIPExitStatus != 0) {
-                            error("Command failed: ${instanceIPCommand}")
+                        error("Command failed: ${instanceIPCommand}")
                         } else {
-                            def instanceIP = bat(script: instanceIPCommand, returnStdout: true).trim()
-                            def containerName = "GoApp"
+                        def instanceIP = bat(script: instanceIPCommand, returnStdout: true).trim()
+                        def containerName = "GoApp"
 
-                            // Stop and remove existing container
-                            bat """
-                                ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ec2-user@${instanceIP} "docker stop ${containerName} || true" && \
-                                ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ec2-user@${instanceIP} "docker rm ${containerName} || true"
-                            """
+                        // Stop and remove existing container
+                        bat """
+                            ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ec2-user@\"${instanceIP}\" "docker stop ${containerName} || true" && \
+                            ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ec2-user@\"${instanceIP}\" "docker rm ${containerName} || true"
+                        """
 
-                            // Pull the latest Docker image and run the container
-                            bat """
-                                ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ec2-user@${instanceIP} "docker pull dshwartzman5/go-jenkins-dockerhub-repo:latest" && \
-                                ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ec2-user@${instanceIP} "docker run -d -p 8081:8081 --name ${containerName} dshwartzman5/go-jenkins-dockerhub-repo:latest"
-                            """
+                        // Pull the latest Docker image and run the container
+                        bat """
+                            ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ec2-user@\"${instanceIP}\" "docker pull dshwartzman5/go-jenkins-dockerhub-repo:latest" && \
+                            ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ec2-user@\"${instanceIP}\" "docker run -d -p 8081:8081 --name ${containerName} dshwartzman5/go-jenkins-dockerhub-repo:latest"
+                        """
                         }
                     }
                 }
             }
         }
     }
+
 
 
       stage('Cleanup') {
