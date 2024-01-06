@@ -29,14 +29,8 @@ pipeline {
         stage('Deploy Container') {
             steps {
                 script {
-                    withCredentials([file(credentialsId: 'ec2-ssh-key', variable: 'SSH_KEY')]) {
-                        def terraformOutputFile = 'terraform_output.txt'
-                        
-                        // Run Terraform output command and store the result in a file
-                        bat script: "${TERRAFORM_HOME}\\terraform output -raw instance_public_ip > ${terraformOutputFile}", returnStatus: true
-
-                        // Read the output value from the file
-                        def terraformOutput = readFile(terraformOutputFile).trim()
+                    withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'SSH_KEY_FILE', passphraseVariable: '', usernameVariable: 'SSH_USERNAME')]) {
+                        def terraformOutput = bat(script: "${TERRAFORM_HOME}\\terraform output -raw instance_public_ip", returnStatus: true).toString().trim()
 
                         if (terraformOutput.isEmpty()) {
                             error "Failed to retrieve the Terraform output for instance_public_ip."
@@ -45,14 +39,15 @@ pipeline {
                         def containerName = "GoApp"
 
                         // Stop and remove existing container
-                        bat "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ec2-user@${terraformOutput} 'docker stop ${containerName} || true && docker rm ${containerName} || true'"
+                        bat "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_FILE} ${SSH_USERNAME}@${terraformOutput} 'docker stop ${containerName} || true && docker rm ${containerName} || true'"
 
                         // Pull the latest Docker image and run the container
-                        bat "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ec2-user@${terraformOutput} 'docker pull dshwartzman5/go-jenkins-dockerhub-repo:latest && docker run -d -p 8081:8081 --name ${containerName} dshwartzman5/go-jenkins-dockerhub-repo:latest'"
+                        bat "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_FILE} ${SSH_USERNAME}@${terraformOutput} 'docker pull dshwartzman5/go-jenkins-dockerhub-repo:latest && docker run -d -p 8081:8081 --name ${containerName} dshwartzman5/go-jenkins-dockerhub-repo:latest'"
                     }
                 }
             }
         }
+
 
 
 
