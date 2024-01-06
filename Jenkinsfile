@@ -36,10 +36,13 @@ pipeline {
                             error "Failed to retrieve the Terraform output for instance_public_ip."
                         }
 
+                        echo "Terraform Output: ${terraformOutput}"
+
+
                         def containerName = "GoApp"
 
                         // Stop and remove existing container
-                        bat "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_FILE} ${SSH_USERNAME}@${terraformOutput} 'docker stop ${containerName} || true && docker rm ${containerName} || true'"
+                        bat "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_FILE} ${SSH_USERNAME}@${terraformOutput} 'docker stop ${containerName} 2>1 && docker rm ${containerName} 2>1'"
 
                         // Pull the latest Docker image and run the container
                         bat "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_FILE} ${SSH_USERNAME}@${terraformOutput} 'docker pull dshwartzman5/go-jenkins-dockerhub-repo:latest && docker run -d -p 8081:8081 --name ${containerName} dshwartzman5/go-jenkins-dockerhub-repo:latest'"
