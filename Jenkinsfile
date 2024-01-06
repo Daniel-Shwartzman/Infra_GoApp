@@ -36,18 +36,18 @@ pipeline {
             steps {
                 script {
                     withCredentials([file(credentialsId: 'ec2-ssh-key', variable: 'SSH_KEY')]) {
-                        def instanceIP = bat(script: "${TERRAFORM_HOME}\\terraform output -raw instance_public_ip", returnStdout: true).trim()
                         def containerName = "GoApp"
 
                         // Stop and remove existing container
-                        bat "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ec2-user@${instanceIP} 'docker stop ${containerName} || true && docker rm ${containerName} || true'"
+                        bat "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ec2-user@`${TERRAFORM_HOME}\\terraform output -raw instance_public_ip` 'docker stop ${containerName} || true && docker rm ${containerName} || true'"
 
                         // Pull the latest Docker image and run the container
-                        bat "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ec2-user@${instanceIP} 'docker pull dshwartzman5/go-jenkins-dockerhub-repo:latest && docker run -d -p 8081:8081 --name ${containerName} dshwartzman5/go-jenkins-dockerhub-repo:latest'"
+                        bat "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY} ec2-user@`${TERRAFORM_HOME}\\terraform output -raw instance_public_ip` 'docker pull dshwartzman5/go-jenkins-dockerhub-repo:latest && docker run -d -p 8081:8081 --name ${containerName} dshwartzman5/go-jenkins-dockerhub-repo:latest'"
                     }
                 }
             }
         }
+
 
         stage('Cleanup') {
             steps {
