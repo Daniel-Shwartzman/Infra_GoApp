@@ -36,9 +36,9 @@ pipeline {
             steps {
                 script {
                     withCredentials([file(credentialsId: 'ec2-ssh-key', variable: 'SSH_KEY')]) {
-                        def terraformOutput = bat(script: "${TERRAFORM_HOME}\\terraform output -raw instance_public_ip", returnStatus: true).trim()
+                        def terraformOutput = bat(script: "${TERRAFORM_HOME}\\terraform output -raw instance_public_ip", returnStatus: true).toString().trim()
 
-                        if (terraformOutput != 0) {
+                        if (terraformOutput.isEmpty()) {
                             error "Failed to retrieve the Terraform output for instance_public_ip."
                         }
 
@@ -53,6 +53,7 @@ pipeline {
                 }
             }
         }
+
 
 
 
