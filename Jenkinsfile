@@ -30,7 +30,7 @@ pipeline {
             steps {
                 script {
                     withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'SSH_KEY_FILE', passphraseVariable: '', usernameVariable: 'SSH_USERNAME')]) {
-                        def terraformOutput = bat(script: "${TERRAFORM_HOME}\\terraform output -raw instance_public_ip", returnStatus: true).toString().trim()
+                        def terraformOutput = bat(script: "${TERRAFORM_HOME}\\terraform output", returnStatus: true).toString().trim()
 
                         if (terraformOutput.isEmpty() || terraformOutput == "0") {
                             echo "Terraform Output: ${terraformOutput}"
