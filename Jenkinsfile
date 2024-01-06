@@ -7,7 +7,6 @@ pipeline {
         DOCKER_USERNAME = 'dshwartzman5'
         AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
-        TERRAFORM_HOME = tool 'Terraform_31130_windows_amd64'
     }
 
     stages {
@@ -16,11 +15,11 @@ pipeline {
                 script {
                     dir('terraform') {
                         echo "Refreshing Terraform state"
-                        bat "${TERRAFORM_HOME}\\terraform apply -refresh-only -auto-approve"
+                        bat "terraform apply -refresh-only -auto-approve"
                         echo "Initializing Terraform"
-                        bat "${TERRAFORM_HOME}\\terraform init"
+                        bat "terraform init"
                         echo "Applying Terraform changes"
-                        bat "${TERRAFORM_HOME}\\terraform apply -auto-approve"
+                        bat "terraform apply -auto-approve"
                     }
                 }
             }
@@ -30,7 +29,7 @@ pipeline {
             steps {
                 script {
                     withCredentials([sshUserPrivateKey(credentialsId: 'ec2-ssh-key', keyFileVariable: 'SSH_KEY_FILE', passphraseVariable: '', usernameVariable: 'SSH_USERNAME')]) {
-                        def terraformOutput = bat(script: "${TERRAFORM_HOME}\\terraform output", returnStatus: true).toString().trim()
+                        def terraformOutput = bat(script: "terraform output", returnStatus: true).toString().trim()
 
                         if (terraformOutput.isEmpty() || terraformOutput == "0") {
                             echo "Terraform Output: ${terraformOutput}"
