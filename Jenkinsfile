@@ -33,10 +33,9 @@ pipeline {
                         def terraformOutput = bat(script: "${TERRAFORM_HOME}\\terraform output -raw instance_public_ip", returnStatus: true).toString().trim()
 
                         if (terraformOutput.isEmpty() || terraformOutput == "0") {
+                            echo "Terraform Output: ${terraformOutput}"
                             error "Failed to retrieve a valid Terraform output for instance_public_ip."
                         }
-
-                        echo "Terraform Output: ${terraformOutput}"
 
                         def containerName = "GoApp"
 
