@@ -22,7 +22,9 @@ pipeline {
                         echo "Applying Terraform changes"
                         bat "${TERRAFORM_HOME}\\terraform apply -auto-approve"
                         echo "Fetching instance public IP"
-                        instancePublicIp = bat(script: "${TERRAFORM_HOME}\\terraform output -raw instance_public_ip", returnStdout: true).trim()
+                        def output = bat(script: "${TERRAFORM_HOME}\\terraform output -raw instance_public_ip", returnStdout: true)
+                        echo "Output: ${output}"
+                        instancePublicIp = output.trim()
                         echo "Instance Public IP: ${instancePublicIp}"
                     }
                 }
