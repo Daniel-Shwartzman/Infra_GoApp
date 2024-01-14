@@ -22,14 +22,15 @@ pipeline {
                         echo "Applying Terraform changes"
                         bat "${TERRAFORM_HOME}\\terraform apply -auto-approve"
                         echo "Fetching instance public IP"
-                        def output = bat(script: "${TERRAFORM_HOME}\\terraform output -raw instance_public_ip", returnStdout: true).trim().replaceAll("\\x1B\\[[0-9;]*[a-zA-Z]", "")
+                        def output = bat(script: "${TERRAFORM_HOME}\\terraform output -raw instance_public_ip", returnStdout: true).trim()
                         def matcher = (output =~ /\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3})\b/)
                         if (matcher.matches()) {
                         instancePublicIp = matcher[0][0]
                         echo "Instance Public IP: ${instancePublicIp}"
                         } else {
-                        error "Failed to extract instance public IP"
+                            error "Failed to extract instance public IP"
                         }
+
                     }
                 }
             }
