@@ -24,8 +24,13 @@ pipeline {
                         echo "Fetching instance public IP"
                         def output = bat(script: "${TERRAFORM_HOME}\\terraform output -raw instance_public_ip", returnStdout: true)
                         echo "Output: ${output}"
-                        instancePublicIp = output.trim()
-                        echo "Instance Public IP: ${instancePublicIp}"
+                        def matcher = (output =~ /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/)
+                        if (matcher.matches()) {
+                            instancePublicIp = matcher[0][0]
+                            echo "Instance Public IP: ${instancePublicIp}"
+                        } else {
+                            error "Failed to extract instance public IP"
+                        }
                     }
                 }
             }
