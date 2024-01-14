@@ -16,7 +16,7 @@ pipeline {
                 script {
                     dir('terraform') {
                         echo "Initializing Terraform"
-                        bat "${TERRAFORM_HOME}\\terraform init -input=false -migrate-state"
+                        bat "${TERRAFORM_HOME}\\terraform init -migrate-state"
                         echo "Applying Terraform changes"
                         bat "${TERRAFORM_HOME}\\terraform apply -auto-approve"
                     }
