@@ -30,7 +30,6 @@ pipeline {
                         } else {
                             error "Failed to extract instance public IP"
                         }
-
                     }
                 }
             }
