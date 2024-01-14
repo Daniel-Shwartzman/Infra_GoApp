@@ -22,7 +22,7 @@ pipeline {
                         echo "Applying Terraform changes"
                         bat "${TERRAFORM_HOME}\\terraform apply -auto-approve"
                         echo "Fetching instance public IP"
-                        instancePublicIp = bat(script: "${TERRAFORM_HOME}\\terraform output instance_public_ip", returnStdout: true).trim()
+                        instancePublicIp = bat(script: "${TERRAFORM_HOME}\\terraform output -raw instance_public_ip", returnStdout: true).trim()
                         echo "Instance Public IP: ${instancePublicIp}"
                     }
                 }
@@ -36,10 +36,10 @@ pipeline {
                         def containerName = "GoApp"
 
                         // Check if the container exists and stop/remove if it does
-                        bat "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_FILE} ${SSH_USERNAME}@${instancePublicIp} 'docker ps -q --filter name=${containerName} | xargs docker stop 2>1 && docker ps -q --filter name=${containerName} | xargs docker rm 2>1'"
+                        bat "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_FILE} ${SSH_USERNAME}@${instancePublicIp} \"docker ps -q --filter name=${containerName} | xargs docker stop 2>1 && docker ps -q --filter name=${containerName} | xargs docker rm 2>1\""
 
                         // Pull the latest Docker image and run the container
-                        bat "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_FILE} ${SSH_USERNAME}@${instancePublicIp} 'docker pull dshwartzman5/go-jenkins-dockerhub-repo:latest && docker run -d -p 8081:8081 --name ${containerName} dshwartzman5/go-jenkins-dockerhub-repo:latest'"
+                        bat "ssh -o StrictHostKeyChecking=no -i ${SSH_KEY_FILE} ${SSH_USERNAME}@${instancePublicIp} \"docker pull dshwartzman5/go-jenkins-dockerhub-repo:latest && docker run -d -p 8081:8081 --name ${containerName} dshwartzman5/go-jenkins-dockerhub-repo:latest\""
                     }
                 }
             }
