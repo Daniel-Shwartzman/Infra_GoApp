@@ -1,3 +1,5 @@
+def instancePublicIp
+
 pipeline {
     agent any
 
@@ -20,7 +22,7 @@ pipeline {
                         echo "Applying Terraform changes"
                         bat "${TERRAFORM_HOME}\\terraform apply -auto-approve"
                         echo "Fetching instance public IP"
-                        def instancePublicIp = bat(script: "${TERRAFORM_HOME}\\terraform output instance_public_ip", returnStdout: true).trim()
+                        instancePublicIp = bat(script: "${TERRAFORM_HOME}\\terraform output instance_public_ip", returnStdout: true).trim()
                         echo "Instance Public IP: ${instancePublicIp}"
                     }
                 }
