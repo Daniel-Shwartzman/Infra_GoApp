@@ -15,8 +15,6 @@ pipeline {
             steps {
                 script {
                     dir('terraform') {
-                        echo "Refreshing Terraform state"
-                        bat "${TERRAFORM_HOME}\\terraform apply -refresh-only -auto-approve"
                         echo "Initializing Terraform"
                         bat "${TERRAFORM_HOME}\\terraform init"
                         echo "Applying Terraform changes"
