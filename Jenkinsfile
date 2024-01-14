@@ -24,7 +24,7 @@ pipeline {
                         echo "Fetching instance public IP"
                         def output = bat(script: "${TERRAFORM_HOME}\\terraform output -raw instance_public_ip", returnStdout: true)
                         echo "Output: ${output}"
-                        def matcher = (output =~ /.*?(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}).*?/)
+                        def matcher = (output =~ /\b((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3})\b/)
                         if (matcher.matches()) {
                             instancePublicIp = matcher[0][0]
                             echo "Instance Public IP: ${instancePublicIp}"
